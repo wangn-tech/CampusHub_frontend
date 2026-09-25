@@ -139,8 +139,8 @@ const loadNotifications = async (isRefresh = false) => {
   loadState.value = "loading";
 
   try {
-    const res = await getNotifications(userStore.userId, page.value, pageSize);
-    getNotificationsUnreadCount(userStore.userId).then((res) => {
+    const res = await getNotifications(undefined, page.value, pageSize);
+    getNotificationsUnreadCount().then((res) => {
       userStore.$state.unReadSystemMessage = res.data.count;
     });
 

@@ -18,7 +18,7 @@ export interface List {
   coverUrl: string;
   createdAt: number;
   currentParticipants: number;
-  id: number;
+  id: string;
   location: string;
   maxParticipants: number;
   organizerAvatar: string;
@@ -50,7 +50,7 @@ export interface Pagination {
 }
 
 export interface ActivitiesRequest {
-  categoryId?: number;
+  categoryId?: string;
   organizerId?: number;
   page?: number;
   pageSize?: number;

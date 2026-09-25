@@ -1,4 +1,6 @@
-WebSocket 聊天接口文档
+WebSocket v1 实时接口文档
+
+当前客户端使用统一 envelope：`type`、`message_id`、`timestamp`（Unix 毫秒）和 `data`。认证后支持 `new_message`、`notification`、`verify_progress` 与 `registration_status_changed`。实时消息只是提示：重连后必须通过 `/api/v1/users/me/groups`、`/api/v1/messages/offline`、`/api/v1/notifications` 和认证/报名 HTTP 接口补偿状态。
 
 📡 连接信息
 

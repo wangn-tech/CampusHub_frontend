@@ -1,4 +1,4 @@
-import { get, post } from "@/utils/http";
+import { v1Delete, v1Get, v1Post } from "@/api/v1";
 
 import type { categories } from "@/types/modules/home/categories";
 import type {
@@ -13,72 +13,50 @@ import type { systemMessage } from "@/types/modules/home/index";
 import type { user } from "@/types/modules/home/user";
 
 const apiUrls = {
-  getActivityCategoryList: "/api/v1/activity/categories",
-  getActivityList: "/api/v1/activity/lists",
-  searchActivity: "/api/v1/activity/search",
-  getActivityDetail: "/api/v1/activity",
-  getNotifications: "/api/notifications",
-  signActivity: "/api/v1/activity/register",
-  cancelSign: "/api/v1/activity/cancel",
-  getWaitList: "/api/v1/activity/list",
-  getUserHome: "/api/v1/users",
-  getNotificationCount: "/api/notifications/unread-count",
+  getActivityCategoryList: "/categories",
 };
 
 // 获取活动分类列表
 export const getActivityCategoryList = () => {
-  console.log(get(apiUrls.getActivityCategoryList));
-  return get<categories>(apiUrls.getActivityCategoryList);
+  return v1Get<any>(apiUrls.getActivityCategoryList);
 };
 
 // 获取活动列表
 export const getActivityList = (params: ActivitiesRequest) => {
-  return get<activities>(
-    `${apiUrls.getActivityList}?page=${params.page}&pageSize=${params.pageSize}&categoryId=${params.categoryId}&status=${params.status}`,
-  );
+  return v1Get<any>("/activities", { page: params.page, page_size: params.pageSize, category_id: params.categoryId, status: params.status, sort: params.sort });
 };
 
 // 搜索活动
 export const searchActivity = (params: SearchRequest) => {
-  return get<search>(
-    `${apiUrls.searchActivity}?keyword=${params.keyword}&page=${params.page}&pageSize=${params.pageSize}`,
-  );
+  return v1Get<any>("/activities/search", { keyword: params.keyword, page: params.page, page_size: params.pageSize, category_id: params.categoryId, sort: params.sort });
 };
 
 // 获取活动详情
 export const getActivityDetail = (id: string) => {
-  return get<detail>(`${apiUrls.getActivityDetail}/${id}`);
+  return v1Get<any>(`/activities/${id}`);
 };
 
 // 报名活动
-export const signActivity = (id: number) => {
-  return post<sign>(apiUrls.signActivity, {
-    activityId: id,
-  });
+export const signActivity = (id: string) => {
+  return v1Post<any>(`/activities/${id}/registrations`);
 };
 
 // 取消报名活动
-export const cancelSign = (id: number) => {
-  return post<sign>(apiUrls.cancelSign, {
-    activityId: id,
-  });
+export const cancelSign = (registrationID: string) => {
+  return v1Delete<any>(`/registrations/${registrationID}`);
 };
 
 // 获取待参加活动列表
 export const getWaitList = (params: WaitRequest) => {
-  return get<wait>(
-    `${apiUrls.getWaitList}?type=${params.type}&page=1&pageSize=12`,
-  );
+  return v1Get<any>("/users/me/activities/registered", { status: params.type === "已参加" ? "history" : "upcoming", page: 1, page_size: 12 });
 };
 
 // 获取用户首页信息
-export const getUserHome = (user_id: string) => {
-  return get<user>(`${apiUrls.getUserHome}/${user_id}/home`);
+export const getUserHome = (_user_id: string) => {
+  return Promise.reject<any>(new Error("公开用户主页暂不受 v1 后端支持"));
 };
 
 // 获取系统消息未读数量
-export const getNotificationCount = (user_id: number) => {
-  return get<Response<systemMessage>>(apiUrls.getNotificationCount, {
-    data: { user_id },
-  });
+export const getNotificationCount = () => {
+  return v1Get<any>("/notifications/unread-count");
 };

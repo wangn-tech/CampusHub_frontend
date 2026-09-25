@@ -266,9 +266,9 @@ import {
 const scrollTop = ref(0);
 const showBackTop = ref(false);
 
-// 时间格式化函数：将10位时间戳转换为"周五 19:00"格式
+// v1 时间字段统一为 Unix 毫秒。
 const formatTime = (timestamp: number) => {
-  const date = new Date(timestamp * 1000); // 转换为毫秒
+  const date = new Date(timestamp);
   const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   const weekDay = weekDays[date.getDay()];
   const hours = date.getHours().toString().padStart(2, "0");
@@ -292,14 +292,14 @@ const tags = ref(); // 活动分类列表
 // 获取活动分类列表
 const getCategories = async () => {
   const {
-    data: { list: Categories },
+    data: { items: Categories },
   } = await getActivityCategoryList();
   tags.value = Categories;
 };
 
-const activeTag = ref<number>(0); // 当前选中的标签
+const activeTag = ref<string | number>(0); // 0 表示全部，其余为分类 UUID
 // 选择标签
-const selectTag = (tagId: number) => {
+const selectTag = (tagId: string | number) => {
   activeTag.value = tagId;
   getActivities();
 };
@@ -314,11 +314,10 @@ const getActivities = async () => {
   const { data } = await getActivityList({
     page: 1,
     pageSize: 10,
-    categoryId: activeTag.value,
-    status: -1,
+    categoryId: typeof activeTag.value === "string" ? activeTag.value : undefined,
   });
   loading.value = false;
-  activities.value = data.list;
+  activities.value = data.items;
   pagination.value = data.pagination;
   state.value = "loading";
   isSearch.value = false;
@@ -340,7 +339,7 @@ const search = async () => {
     pageSize: 50,
   });
   loading.value = false;
-  activities.value = data.list;
+  activities.value = data.items;
   isSearch.value = true;
 };
 
@@ -371,10 +370,9 @@ const loadMore = async () => {
     const { data } = await getActivityList({
       page: pagination.value.page + 1,
       pageSize: 10,
-      categoryId: activeTag.value,
-      status: -1,
+      categoryId: typeof activeTag.value === "string" ? activeTag.value : undefined,
     });
-    const list = data.list;
+    const list = data.items;
     pagination.value = data.pagination;
     const total = pagination.value.total;
     if (activities.value.length < total) {
@@ -387,7 +385,7 @@ const loadMore = async () => {
   }
 };
 
-const viewDetail = (activityId: number) => {
+const viewDetail = (activityId: string) => {
   uni.navigateTo({
     url: `/pages/home/detail?id=${activityId}`,
   });

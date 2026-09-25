@@ -240,7 +240,7 @@ const loadMore = async () => {
 
       // 如果当前有搜索关键词，需要对新增数据进行过滤
       if (searchKeyword.value.trim()) {
-        const filtered = newList.filter((activity) =>
+        const filtered = newList.filter((activity: any) =>
           activity.title
             .toLowerCase()
             .includes(searchKeyword.value.trim().toLowerCase()),

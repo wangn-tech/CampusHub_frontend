@@ -1,4 +1,4 @@
-import { get, post } from "@/utils/http";
+import { v1Get, v1Post } from "@/api/v1";
 import type { notifications } from "@/types/modules/message/notifications";
 import type { groups } from "@/types/modules/message/groups";
 import type { title } from "@/types/modules/message/title";
@@ -8,16 +8,16 @@ import type { history } from "@/types/modules/message/history";
 import type { offline } from "@/types/modules/message/offline";
 
 const apiUrls = {
-  getNotifications: "/api/notifications",
-  getNotificationsUnreadCount: "/api/notifications/unread-count",
-  markNotificationsRead: "/api/notifications/read",
-  markNotificationsReadAll: "/api/notifications/read-all",
-  getGroups: "/api/users",
-  getTitle: "/api/groups",
-  getMembers: "/api/groups",
-  getStatus: "/api/users/status",
-  getHistory: "/api/messages",
-  getOffline: "/api/messages/offline",
+  getNotifications: "/notifications",
+  getNotificationsUnreadCount: "/notifications/unread-count",
+  markNotificationsRead: "/notifications/read",
+  markNotificationsReadAll: "/notifications/read-all",
+  getGroups: "/users/me/groups",
+  getTitle: "/groups",
+  getMembers: "/groups",
+  getStatus: "/users/status",
+  getHistory: "/groups",
+  getOffline: "/messages/offline",
 };
 
 // ==================== 系统通知相关 ====================
@@ -28,21 +28,16 @@ const apiUrls = {
  * @param page 页码
  * @param page_size 每页数量
  */
-export const getNotifications = (user_id: number, page = 1, page_size = 20) => {
-  return get<Response<notifications>>(
-    apiUrls.getNotifications +
-      `?user_id=${user_id}&page=${page}&page_size=${page_size}`,
-  );
+export const getNotifications = (_user_id?: number, page = 1, page_size = 20) => {
+  return v1Get<any>(apiUrls.getNotifications, { page, page_size });
 };
 
 /**
  * 获取未读通知数量
  * @param user_id 用户ID
  */
-export const getNotificationsUnreadCount = (user_id: number) => {
-  return get<Response<{ count: number }>>(
-    apiUrls.getNotificationsUnreadCount + `?user_id=${user_id}`,
-  );
+export const getNotificationsUnreadCount = (_user_id?: number) => {
+  return v1Get<any>(apiUrls.getNotificationsUnreadCount);
 };
 
 /**
@@ -54,10 +49,7 @@ export const markNotificationsRead = (
   user_id: number,
   notification_ids: string[],
 ) => {
-  return post<Response<{}>>(apiUrls.markNotificationsRead, {
-    user_id,
-    notification_ids,
-  });
+  return v1Post<any>(apiUrls.markNotificationsRead, { ids: notification_ids });
 };
 
 /**
@@ -65,9 +57,7 @@ export const markNotificationsRead = (
  * @param user_id 用户ID
  */
 export const markNotificationsReadAll = (user_id: number) => {
-  return post<Response<{}>>(apiUrls.markNotificationsReadAll, {
-    user_id,
-  });
+  return v1Post<any>(apiUrls.markNotificationsReadAll);
 };
 
 // ==================== 群聊相关 ====================
@@ -78,11 +68,8 @@ export const markNotificationsReadAll = (user_id: number) => {
  * @param page 页码
  * @param page_size 每页数量
  */
-export const getGroups = (user_id: number, page = 1, page_size = 20) => {
-  return get<Response<groups>>(
-    apiUrls.getGroups +
-      `/${user_id}/groups?page=${page}&page_size=${page_size}`,
-  );
+export const getGroups = (_user_id?: number, _page = 1, _page_size = 20) => {
+  return v1Get<any>(apiUrls.getGroups);
 };
 
 /**
@@ -90,7 +77,7 @@ export const getGroups = (user_id: number, page = 1, page_size = 20) => {
  * @param group_id 群组ID
  */
 export const getGroupInfo = (group_id: string) => {
-  return get<title>(apiUrls.getTitle + `/${group_id}`);
+  return v1Get<any>(apiUrls.getTitle + `/${group_id}`);
 };
 
 /**
@@ -100,10 +87,7 @@ export const getGroupInfo = (group_id: string) => {
  * @param page_size 每页数量
  */
 export const getGroupMembers = (group_id: string, page = 1, page_size = 20) => {
-  return get<Response<members>>(
-    apiUrls.getMembers +
-      `/${group_id}/members?page=${page}&page_size=${page_size}`,
-  );
+  return v1Get<any>(apiUrls.getMembers + `/${group_id}/members`, { page, page_size });
 };
 
 /**
@@ -111,7 +95,7 @@ export const getGroupMembers = (group_id: string, page = 1, page_size = 20) => {
  * @param user_id 用户ID
  */
 export const getUserStatus = (user_id: number) => {
-  return get<Response<status>>(apiUrls.getStatus + `?user_id=${user_id}`);
+  return Promise.reject(new Error("在线状态暂不受 v1 后端支持"));
 };
 
 // ==================== 消息相关 ====================
@@ -127,11 +111,7 @@ export const getGroupHistory = (
   before_id?: string,
   limit = 10,
 ) => {
-  let url = apiUrls.getHistory + `?group_id=${group_id}&limit=${limit}`;
-  if (before_id) {
-    url += `&before_id=${before_id}`;
-  }
-  return get<Response<history>>(url);
+  return v1Get<any>(`${apiUrls.getHistory}/${group_id}/messages`, { after_id: before_id, limit });
 };
 
 /**
@@ -139,10 +119,8 @@ export const getGroupHistory = (
  * @param user_id 用户ID
  * @param after_time 离线时间
  */
-export const getOfflineMessages = (user_id: number, after_time: string) => {
-  return get<Response<offline>>(
-    apiUrls.getOffline + `?user_id=${user_id}&after_time=${after_time}`,
-  );
+export const getOfflineMessages = (_user_id: number, after_id: string | number = 0) => {
+  return v1Get<any>(apiUrls.getOffline, { after_id, limit: 100 });
 };
 
 // ==================== 兼容旧接口名称 ====================
