@@ -297,13 +297,13 @@ const attemptTokenRefresh = (): Promise<string> => {
   }
 
   // 直接使用 post 调用刷新接口，避免循环依赖
-  refreshPromise = post<{ data: { accessToken: string } }>(
-    "/api/v1/refresh_token",
-    { refreshToken },
+  refreshPromise = post<{ data: { access_token: string } }>(
+    "/api/v1/auth/refresh",
+    { refresh_token: refreshToken },
     { showErrorToast: false, autoRefresh: false } // 禁止自动刷新和错误提示
   )
     .then((resp: any) => {
-      const newAccessToken = resp?.data?.accessToken ?? resp?.accessToken ?? "";
+      const newAccessToken = resp?.data?.access_token ?? resp?.access_token ?? "";
       if (!newAccessToken) {
         throw new Error("Failed to obtain new access token");
       }
@@ -566,6 +566,11 @@ export const http = <T>(
           if (config.cache && config.method === "GET") {
             const cacheKey = generateCacheKey(config);
             setCache(cacheKey, processedResponse.data);
+          }
+          // Preserve response headers for capabilities such as search fallback
+          // without changing the canonical backend JSON envelope.
+          if (processedResponse.data && typeof processedResponse.data === "object") {
+            (processedResponse.data as any)._headers = processedResponse.header || {};
           }
           resolve(processedResponse.data as T);
         } else {

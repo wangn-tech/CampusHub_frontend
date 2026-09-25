@@ -519,6 +519,14 @@ onMounted(async () => {
 const handleVerifyProgress = async (data: WSVerifyProgressData) => {
   console.log("[VerifyPage] 收到认证进度更新:", data);
 
+  // v1 emits string statuses and treats WebSocket as a delivery hint. Reload
+  // the canonical HTTP representation instead of retaining the old numeric
+  // status view model locally.
+  if (typeof data.status === "string") {
+    await fetchAuthProgress();
+    return;
+  }
+
   // 如果 refresh 为 true，调用获取认证信息进度的接口
   if (data.refresh) {
     console.log("[VerifyPage] refresh 为 true，正在获取最新认证进度...");

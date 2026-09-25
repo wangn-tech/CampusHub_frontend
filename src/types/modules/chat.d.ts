@@ -86,7 +86,7 @@ export interface WSNewMessageMessage extends WSMessage {
 /** 系统通知 */
 export interface WSNotificationData {
   notification_id: string;
-  type: string;
+  notification_type: string;
   title: string;
   content: string;
   created_at: number;
@@ -273,12 +273,26 @@ export interface WSStudentAuthUpdateMessage extends WSMessage {
 
 /** 认证进度实时更新数据 */
 export interface WSVerifyProgressData {
-  verify_id: number;
-  status: number;
-  refresh: boolean;
+  verification_id: string;
+  status: "initialized" | "pending_confirm" | "manual_review" | "cancelled" | "approved" | "rejected" | number;
+  progress: number;
+  message: string;
+  // Temporary view-model fields used while the verification page is migrated.
+  verify_id?: number;
+  refresh?: boolean;
   status_desc?: string;
   need_action?: number;
   reject_reason?: string;
+}
+
+export interface WSRegistrationStatusChangedData {
+  registration_id: string;
+  activity_id: string;
+  from_status?: string;
+  to_status: string;
+  ticket_id?: string;
+  group_id?: string;
+  message: string;
 }
 
 /** 认证进度实时更新消息 */

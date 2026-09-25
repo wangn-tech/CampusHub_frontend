@@ -175,9 +175,9 @@ import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/store/user";
 
-// 时间格式化函数：将10位时间戳转换为"2026.02.23 19:00"格式
+// v1 时间字段统一为 Unix 毫秒。
 const formatDate = (timestamp: number) => {
-  const date = new Date(timestamp * 1000); // 转换为毫秒
+  const date = new Date(timestamp);
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
@@ -198,6 +198,7 @@ const isUser = ref<boolean>(false);
 
 // 记录是否报名
 const isSigned = ref(false);
+const registrationId = ref("");
 
 // 加载状态
 const loading = ref(true);
@@ -214,8 +215,8 @@ onLoad((options: any) => {
 const fetchActivityDetail = () => {
   getActivityDetail(String(activityId))
     .then((res) => {
-      activityDetail.value = res.data.activity;
-      isUser.value = userStore.userId == activityDetail.value.organizerId;
+      activityDetail.value = res.data;
+      isUser.value = userStore.userId == activityDetail.value.organizer?.id;
       loading.value = false;
     })
     .catch(() => {
@@ -232,7 +233,9 @@ const checkSignStatus = async () => {
       type: "待参加",
     });
     // 检查是否报名
-    isSigned.value = items?.some((item: any) => item.id == Number(activityId));
+    const registration = items?.find((item: any) => item.activity?.id === activityId);
+    isSigned.value = !!registration;
+    registrationId.value = registration?.id || "";
   } catch (error) {
     console.error("检查报名状态失败:", error);
   } finally {
@@ -245,13 +248,14 @@ const checkSignStatus = async () => {
 
 // 报名活动
 const sign = () => {
-  signActivity(Number(activityId)).then((res) => {
-    if (res.data.result == "success") {
+  signActivity(String(activityId)).then((res) => {
+    if (res.code === 0) {
       uni.showToast({
         title: "报名成功",
         icon: "success",
       });
       isSigned.value = true;
+      registrationId.value = res.data.id;
 
       uni.showModal({
         title: "提示",
@@ -273,8 +277,8 @@ const sign = () => {
 
 // 取消报名
 const unSign = () => {
-  cancelSign(Number(activityId)).then((res) => {
-    if (res.data.result == "success") {
+  cancelSign(registrationId.value).then((res) => {
+    if (res.code === 0) {
       uni.showToast({
         title: "取消报名成功",
         icon: "success",

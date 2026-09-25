@@ -14,7 +14,7 @@ export interface Data {
 }
 
 export interface List {
-  id?: number;
+  id?: string;
   title?: string;
   coverUrl?: string;
   coverType?: number;
@@ -39,13 +39,13 @@ export interface List {
 export interface Tag {
   color: string;
   icon: string;
-  id: number;
+  id: string;
   name: string;
   [property: string]: any;
 }
 
 export interface SearchRequest {
-  categoryId?: number;
+  categoryId?: string;
   page?: number;
   pageSize?: number;
   keyword?: string;

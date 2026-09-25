@@ -1,13 +1,13 @@
-import { get } from "@/utils/http";
+import { v1Get } from "@/api/v1";
 import type {
   ActivityListResponse,
   MyCreatedActivity,
 } from "@/types/modules/activity";
 
 const apiUrls = {
-  getActivityList: "/api/v1/activity/list",
-  getMyCreated: "/api/v1/activity/my/created",
-  searchActivities: "/api/v1/activity/search",
+  getActivityList: "/users/me/activities/registered",
+  getMyCreated: "/users/me/activities/created",
+  searchActivities: "/activities/search",
 };
 
 /**
@@ -21,9 +21,7 @@ export const searchActivities = (
   page = 1,
   pageSize = 10,
 ) => {
-  return get<Response<MyCreatedActivity>>(apiUrls.searchActivities, {
-    data: { keyword, page, pageSize },
-  });
+  return v1Get<any>(apiUrls.searchActivities, { keyword, page, page_size: pageSize });
 };
 
 /**
@@ -37,9 +35,7 @@ export const getActivityList = (
   page = 1,
   pageSize = 12,
 ) => {
-  return get<Response<ActivityListResponse>>(apiUrls.getActivityList, {
-    data: { type, page, pageSize },
-  });
+  return v1Get<any>(apiUrls.getActivityList, { status: type === "已参加" ? "history" : "upcoming", page, page_size: pageSize });
 };
 
 /**
@@ -48,7 +44,5 @@ export const getActivityList = (
  * @param pageSize 每页数量，默认12
  */
 export const getMyCreated = (page = 1, pageSize = 12) => {
-  return get<Response<MyCreatedActivity>>(apiUrls.getMyCreated, {
-    data: { page, pageSize },
-  });
+  return v1Get<any>(apiUrls.getMyCreated, { page, page_size: pageSize });
 };

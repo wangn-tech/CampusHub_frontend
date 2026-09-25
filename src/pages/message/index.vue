@@ -244,7 +244,7 @@ const formatTime = (time: string | number) => {
 const fetchGroups = async () => {
   loading.value = true;
   try {
-    const res = await getGroups(userStore.userId);
+    const res = await getGroups();
     if (res.data?.groups) {
       groups.value = res.data.groups;
     }
@@ -262,7 +262,7 @@ const fetchGroups = async () => {
 // 获取未读通知数量
 const fetchUnreadCount = async () => {
   try {
-    const res = await getNotificationsUnreadCount(userStore.userId);
+    const res = await getNotificationsUnreadCount();
     if (res.data?.count !== undefined) {
       unreadCount.value = res.data.count;
     }

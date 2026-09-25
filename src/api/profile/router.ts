@@ -1,4 +1,4 @@
-import { get, post, upload } from "@/utils/http";
+import { get, post, put, upload } from "@/utils/http";
 import type {
   GetStudentAuthProgressData,
   PostUserDetailsRequest,
@@ -27,21 +27,18 @@ import type {
 } from "@/types/modules/credit";
 
 const apiUrls = {
-  getProfile: "/api/v1/users/details",
-  updateProfile: "/api/v1/users/details",
-  updateInterests: "/api/v1/interests",
+  getProfile: "/api/v1/users/me",
+  updateProfile: "/api/v1/users/me",
+  updateInterests: "/api/v1/users/me/interests",
   updatePassword: "/api/v1/users/info/password",
-  getAuthProgress: "/api/v1/verify/student/current",
-  postStudentAuth: "/api/v1/verify/student/apply",
-  postStudentAuthConfirm: "/api/v1/verify/student/confirm",
-  postStudentAuthCancel: "/api/v1/verify/student/cancel",
-  uploadImage: "/api/v1/verify/student/apply",
+  getAuthProgress: "/api/v1/student-verifications/current",
+  postStudentAuth: "/api/v1/student-verifications",
+  uploadImage: "/api/v1/files/images",
   getCaptchaConfig: "/api/v1/captcha/config",
   postCaptcha: "/api/v1/captcha",
   getQqCodeRegister: "/api/v1/qq_code/register",
   getQqCodeForgotPassword: "/api/v1/qq_code/forgot_password",
   getQqCodeDeleteUser: "/api/v1/qq_code/delete_user",
-  getActivityList: "/api/v1/activity/list",
   getCreditLogs: "/api/v1/credit/logs",
 };
 
@@ -52,7 +49,7 @@ export const getProfile = () => {
 
 // 更新用户详情
 export const updateProfile = (data: PostUserDetailsRequest) => {
-  return post<Response<UserDetailsData>>(apiUrls.updateProfile, data);
+  return put<Response<UserDetailsData>>(apiUrls.updateProfile, data);
 };
 
 // 更新用户详情（带头像上传）
@@ -71,7 +68,7 @@ export const updateProfileWithAvatar = (data: PostUserDetailsRequest) => {
 
 // 更新用户兴趣标签
 export const updateInterests = (data: PostUserInterestsRequest) => {
-  return post<Response<PostUserInterestsData>>(apiUrls.updateInterests, data);
+  return put<Response<PostUserInterestsData>>(apiUrls.updateInterests, data);
 };
 
 // 修改用户密码
@@ -96,18 +93,12 @@ export const postStudentAuthWithFiles = (data: PostStudentAuthRequest) => {
 
 // 确认学生认证申请
 export const postStudentAuthConfirm = (data: PostStudentAuthConfirmRequest) => {
-  return post<Response<PostStudentAuthConfirmData>>(
-    apiUrls.postStudentAuthConfirm,
-    data,
-  );
+  return Promise.reject<Response<PostStudentAuthConfirmData>>(new Error("学生认证确认暂不受 v1 后端支持"));
 };
 
 // 取消学生认证申请
 export const postStudentAuthCancel = (data: PostStudentAuthCancelRequest) => {
-  return post<Response<PostStudentAuthCancelData>>(
-    apiUrls.postStudentAuthCancel,
-    data,
-  );
+  return Promise.reject<Response<PostStudentAuthCancelData>>(new Error("学生认证取消暂不受 v1 后端支持"));
 };
 
 // 获取验证码配置

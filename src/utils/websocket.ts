@@ -330,6 +330,10 @@ class ChatWebSocket {
         this.emit("verifyProgress", message.data);
         break;
 
+      case "registration_status_changed":
+        this.emit("registrationStatusChanged", message.data);
+        break;
+
       default:
         console.warn("[WebSocket] 未知消息类型:", message.type);
     }
